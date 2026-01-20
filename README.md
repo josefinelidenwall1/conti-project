@@ -1,2 +1,5 @@
 # conti-project
-Consultant time-management assignment
+
+## Project - Create POC for a Consultant time-management assignment
+
+### Project group: Jesse, Josefine, Juaquin
