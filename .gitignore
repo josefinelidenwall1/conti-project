@@ -1,0 +1,15 @@
+venv/
+env/
+.env/
+.venv/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.vscode/
+.idea/
+sqlvenv/
+database.ini
