@@ -2,14 +2,14 @@
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from config import config
 import json
 from datetime import datetime,timedelta
+from src.reporting_service.report_queries import connect
 
 def db_get_consultants(): #works
     con = None
     try:
-        con = psycopg2.connect(**config())
+        con = psycopg2.connect(**connect())
         cursor = con.cursor(cursor_factory=RealDictCursor)
         SQL = 'SELECT * FROM consultants;'
         cursor.execute(SQL)
@@ -27,7 +27,7 @@ def db_get_consultants(): #works
 def get_hours(): 
     con = None
     try:
-        con = psycopg2.connect(**config())
+        con = psycopg2.connect(**connect())
         cursor = con.cursor(cursor_factory=RealDictCursor)
         SQL = 'SELECT * FROM consultanthours;'
         cursor.execute(SQL)
@@ -53,7 +53,7 @@ def insert_hours(consultant_id: int, starttime :datetime, endtime :datetime, lun
             worktime-=timedelta(minutes=30)
         balance_minutes= round(worktime.total_seconds() / 60, 2) #divide by 3600 for hours, 60 for minutes
 
-        con = psycopg2.connect(**config())
+        con = psycopg2.connect(**connect())
         cursor =con.cursor(cursor_factory=RealDictCursor)
 
         SQL = """
@@ -76,4 +76,4 @@ def insert_hours(consultant_id: int, starttime :datetime, endtime :datetime, lun
         if con is not None:
             con.close()
 
-print(insert_hours(2,'2025-01-12 09:00:00', '2025-01-12 16:30:00', False, 'staterailroads'))
+#print(insert_hours(2,'2025-01-12 09:00:00', '2025-01-12 16:30:00', False, 'staterailroads'))

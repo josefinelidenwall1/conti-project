@@ -2,7 +2,15 @@ import psycopg2
 import random
 from faker import Faker
 from datetime import datetime, timedelta, date
-from src.data.config import config #change later to match soruce
+import sys 
+import os 
+
+
+current_dir = os.path.dirname(os.path.abspath(__file__)) 
+project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) 
+sys.path.append(project_root)
+
+from src.reporting_service.report_queries import connect 
 
 # Initialize Faker
 fake = Faker()
@@ -143,7 +151,7 @@ if __name__ == "__main__":
     # assuming connection has been created to db 
     try:
         # Establish connection
-        connection = psycopg2.connect(**config())
+        connection = psycopg2.connect(**connect())
         main(connection)
     except Exception as e:
         print(f"Connection failed: {e}")
