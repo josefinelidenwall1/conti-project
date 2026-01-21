@@ -151,7 +151,7 @@ if __name__ == "__main__":
     # assuming connection has been created to db 
     try:
         # Establish connection
-        connection = psycopg2.connect(**connect())
+        connection = psycopg2.connect()
         main(connection)
     except Exception as e:
         print(f"Connection failed: {e}")

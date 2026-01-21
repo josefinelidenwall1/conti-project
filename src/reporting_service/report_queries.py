@@ -1,6 +1,8 @@
 import psycopg2
 import logging
-from kv_secrets import get_database_credentials 
+from src.reporting_service.kv_secrets import get_database_credentials
+
+
 
 logger = logging.getLogger(__name__)
 
