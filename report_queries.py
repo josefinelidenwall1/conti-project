@@ -1,6 +1,6 @@
 import psycopg2
 import logging
-from src.reporting_service.kv_secrets import get_database_credentials
+from kv_secrets import get_database_credentials
 
 
 
@@ -61,7 +61,7 @@ def run_report():
             f.write("--- Consultant Time Report ---\n")
 
             with con.cursor() as cursor:
-                f.write("High Level Consultant Time Report")
+                f.write("High Level Consultant Time Report \n")
                 query1 = """
                 WITH WeeklyMatrix AS (
                 SELECT 
