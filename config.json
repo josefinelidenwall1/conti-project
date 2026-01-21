@@ -1,0 +1,12 @@
+{
+  "azure": {
+    "subscription_id": "23b183d5-a30f-46b8-b418-ad060fb67787",
+    "resource_group_name": "conti-groupone-rg",
+    "storage_account_name": "stcontigroupone001",
+    "container_name": "conti-container",
+    "storage_account_url": "https://stcontigroupone001.blob.core.windows.net",
+    "queue_url": "https://stcontigroupone001.queue.core.windows.net",
+    "azure_storage_blob_url": "https://stcontigroupone001.blob.core.windows.net/conti_container/product_data/product1.json"
+  },
+  "location": "northeurope"
+}
