@@ -1,11 +1,11 @@
-id,consultant_name,company_name,clock_in,clock_out,took_lunch,total_minutes
-1,Alex River,TechCorp,2024-05-20 09:00:00,2024-05-20 17:30:00,True,510
-2,Alex River,DataSystems,2024-05-21 08:30:00,2024-05-21 13:00:00,False,270
-3,Jordan Smith,TechCorp,2024-05-20 10:00:00,2024-05-20 18:30:00,True,510
-4,Jordan Smith,CloudBuilders,2024-05-21 09:00:00,2024-05-21 17:00:00,True,480
-5,Sam Taylor,DataSystems,2024-05-20 08:00:00,2024-05-20 16:00:00,False,480
-6,Sam Taylor,TechCorp,2024-05-21 08:00:00,2024-05-21 12:00:00,False,240
-7,Alex River,TechCorp,2024-05-22 09:00:00,2024-05-22 17:00:00,True,480
-8,Jordan Smith,CloudBuilders,2024-05-22 08:45:00,2024-05-22 17:45:00,True,540
-9,Sam Taylor,DataSystems,2024-05-22 09:30:00,2024-05-22 18:00:00,True,510
-10,Alex River,DataSystems,2024-05-23 08:00:00,2024-05-23 16:30:00,True,510
+workday_id,consultant_id,startingTime,endingTime,balance_minutes,lunchbreak,customername
+1,101,2024-05-20 09:00:00,2024-05-20 17:30:00,480,True,TechCorp
+2,101,2024-05-21 08:30:00,2024-05-21 13:00:00,270,False,DataSystems
+3,102,2024-05-20 10:00:00,2024-05-20 18:30:00,480,True,TechCorp
+4,102,2024-05-21 09:00:00,2024-05-21 17:00:00,450,True,CloudBuilders
+5,103,2024-05-20 08:00:00,2024-05-20 16:00:00,480,False,DataSystems
+6,103,2024-05-21 08:00:00,2024-05-21 12:00:00,240,False,TechCorp
+7,101,2024-05-22 09:00:00,2024-05-22 17:00:00,450,True,TechCorp
+8,102,2024-05-22 08:45:00,2024-05-22 17:45:00,510,True,CloudBuilders
+9,103,2024-05-22 09:30:00,2024-05-22 18:00:00,480,True,DataSystems
+10,101,2024-05-23 08:00:00,2024-05-23 16:30:00,480,True,DataSystems
