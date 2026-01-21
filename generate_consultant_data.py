@@ -2,15 +2,8 @@ import psycopg2
 import random
 from faker import Faker
 from datetime import datetime, timedelta, date
-import sys 
-import os 
-
-
-current_dir = os.path.dirname(os.path.abspath(__file__)) 
-project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) 
-sys.path.append(project_root)
-
-from src.reporting_service.report_queries import connect 
+from report_queries import connect 
+from pmqueries import calculate_billable_minutes
 
 # Initialize Faker
 fake = Faker()
@@ -66,10 +59,10 @@ def populate_consultanthours(con, consultant_ids, start_date, days_to_generate=3
     
     customers = generate_customer_names(5)
     
-    # SQL matching your provided schema
+    # SQL matching schema
     sql = """
         INSERT INTO consultanthours 
-        (consultant_id, startingTime, endingTime, totalHours, lunchbreak, customername)
+        (consultant_id, startingTime, endingTime, balance_minutes, lunchbreak, customername)
         VALUES (%s, %s, %s, %s, %s, %s)
     """
     
@@ -98,12 +91,12 @@ def populate_consultanthours(con, consultant_ids, start_date, days_to_generate=3
                     # 3. Calculate End Time
                     # Base work duration
                     duration = timedelta(hours=hours_worked)
-                    
-                    # If they took lunch, they stayed 30 mins longer to get same work hours
                     if take_lunch:
                         duration += timedelta(minutes=30)
                     
                     end_dt = start_dt + duration
+                    
+                    balance_minutes = calculate_billable_minutes(start_dt, end_dt, take_lunch)
                     
                     # 4. Insert Data
                     # Note: Schema has totalHours as INT, so we pass hours_worked (int)
@@ -111,7 +104,7 @@ def populate_consultanthours(con, consultant_ids, start_date, days_to_generate=3
                         cid, 
                         start_dt, 
                         end_dt, 
-                        hours_worked, 
+                        balance_minutes, 
                         take_lunch, 
                         assigned_customer
                     )
@@ -148,13 +141,15 @@ def main(con):
             con.rollback()
 
 if __name__ == "__main__":
-    # assuming connection has been created to db 
     try:
-        # Establish connection
-        connection = psycopg2.connect()
-        main(connection)
+        # Use the imported connect function
+        connection = connect()
+        if connection:
+            main(connection)
+        else:
+            print("Failed to obtain a database connection.")
     except Exception as e:
-        print(f"Connection failed: {e}")
+        print(f"Execution failed: {e}")
     finally:
         if 'connection' in locals() and connection:
             connection.close()

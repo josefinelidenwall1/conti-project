@@ -7,7 +7,7 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.storage.models import BlobContainer
 from azure.storage.blob import BlobClient, BlobServiceClient
-CONFIG_FILE = (r"C:\Users\JesseNurminen\OneDrive - Skillio Oy\Desktop\week3gp\conti-project\config.json")
+CONFIG_FILE = 'config.json'
 if os.path.exists(CONFIG_FILE):
     with open(CONFIG_FILE, 'r') as f:
         config = json.load(f)
@@ -84,4 +84,4 @@ def upload_file(local_file_path): #
         print(f"An error occurred: {e}")
 
 
-upload_file(r"C:\Users\JesseNurminen\OneDrive - Skillio Oy\Desktop\week3gp\conti-project\schemasfordbtables.sql")
+upload_file("schemasfordbtables.sql")

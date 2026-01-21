@@ -8,7 +8,7 @@ app = Flask(__name__)
 example JSON:
 
 {
-    "consultant_id":
+    "consultant_id": 1
     "starttime": "2026-01-21 09:00:00",
     "endtime": "2026-01-21 16:30:00",
     "lunchbreak": false,

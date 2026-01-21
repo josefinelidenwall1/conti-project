@@ -1,6 +1,7 @@
 import psycopg2
 import logging
-from src.reporting_service.kv_secrets import get_database_credentials
+from decimal import Decimal
+from kv_secrets import get_database_credentials
 
 
 
@@ -93,9 +94,22 @@ def run_report():
 
                 cursor.execute(query1)
 
+
                 # Fetching data and writing to file
+                #format number before writing 
                 for row in cursor.fetchall():
-                    f.write(" | ".join(map(str, row)) + "\n")
+                    formatted_row = []
+                    for item in row:
+                        # Check if the item is a number (Decimal or float)
+                        if isinstance(item, (Decimal, float)):
+                            # Format to 2 decimal places (e.g., "4.00")
+                            formatted_row.append(f"{item:.2f}")
+                        elif item is None:
+                            formatted_row.append("0.00")
+                        else:
+                            formatted_row.append(str(item))
+                    
+                    f.write(" | ".join(formatted_row) + "\n")
                 f.write("\n" + "="*50 + "\n\n")
 
             print(f"Successfully generated {report_file}")

@@ -4,12 +4,25 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import json
 from datetime import datetime,timedelta
-from src.reporting_service.report_queries import connect
+from report_queries import connect
+
+def calculate_billable_minutes(start_dt, end_dt, lunchbreak):
+    """calulcates the billable minutes between start and end time stamp removes 30 min if lunch is taken"""
+    if isinstance(start_dt, str):
+        start_dt = datetime.fromisoformat(start_dt)
+    if isinstance(end_dt, str):
+        end_dt = datetime.fromisoformat(end_dt)
+
+    duration = end_dt - start_dt
+
+    if lunchbreak:
+        duration -= timedelta(minutes=30)
+    return round(duration.total_seconds() / 60, 2) #round minutes to 2 decimals and returns minutes 
 
 def db_get_consultants(): #works
     con = None
     try:
-        con = psycopg2.connect(**connect())
+        con = connect()
         cursor = con.cursor(cursor_factory=RealDictCursor)
         SQL = 'SELECT * FROM consultants;'
         cursor.execute(SQL)
@@ -27,7 +40,7 @@ def db_get_consultants(): #works
 def get_hours(): 
     con = None
     try:
-        con = psycopg2.connect(**connect())
+        con = connect()
         cursor = con.cursor(cursor_factory=RealDictCursor)
         SQL = 'SELECT * FROM consultanthours;'
         cursor.execute(SQL)
@@ -45,15 +58,18 @@ def get_hours():
 def insert_hours(consultant_id: int, starttime :datetime, endtime :datetime, lunchbreak : bool, customername: str):
     con = None
     try: 
-        starttime = datetime.fromisoformat(starttime)
-        endtime = datetime.fromisoformat(endtime)
-       
-        worktime= endtime-starttime #calculating totalwork hours with lunchbreak
-        if lunchbreak:
-            worktime-=timedelta(minutes=30)
-        balance_minutes= round(worktime.total_seconds() / 60, 2) #divide by 3600 for hours, 60 for minutes
+        # starttime = datetime.fromisoformat(starttime)
+        # endtime = datetime.fromisoformat(endtime)
 
-        con = psycopg2.connect(**connect())
+        # worktime= endtime-starttime #calculating totalwork hours with lunchbreak
+        # if lunchbreak:
+        #     worktime-=timedelta(minutes=30)
+        # balance_minutes= round(worktime.total_seconds() / 60, 2) #divide by 3600 for hours, 60 for minutes
+        #using helper function instead of manual math 
+
+        balance_minutes = calculate_billable_minutes(starttime, endtime, lunchbreak)
+
+        con = connect()
         cursor =con.cursor(cursor_factory=RealDictCursor)
 
         SQL = """
