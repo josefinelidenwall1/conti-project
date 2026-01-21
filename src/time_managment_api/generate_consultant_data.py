@@ -2,6 +2,7 @@ import psycopg2
 import random
 from faker import Faker
 from datetime import datetime, timedelta, date
+from src.data.config import config #change later to match soruce
 
 # Initialize Faker
 fake = Faker()
@@ -139,12 +140,10 @@ def main(con):
             con.rollback()
 
 if __name__ == "__main__":
-    # assuming connection has been created to db
-    import config 
-    
+    # assuming connection has been created to db 
     try:
         # Establish connection
-        connection = psycopg2.connect(**config.config())
+        connection = psycopg2.connect(**config())
         main(connection)
     except Exception as e:
         print(f"Connection failed: {e}")
