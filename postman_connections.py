@@ -64,9 +64,6 @@ def trigger_report_generation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
 # Route 4: Insert hours
 @app.route('/hours', methods=['POST'])
 def add_hours():
