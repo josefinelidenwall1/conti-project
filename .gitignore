@@ -1,0 +1,21 @@
+# --- Python & Virtual Environments ---
+__pycache__/
+*.pyc
+venv/
+env/
+.venv/
+build/
+dist/
+*.egg-info/
+
+# --- Environment Variables & Secrets (CRITICAL) ---
+.env
+database.ini
+
+# --- IDE & Editor settings ---
+# You generally don't want to share your personal editor settings
+.vscode/
+
+# --- Project Specific Outputs ---
+# Ignore the reports generated locally so they don't clutter the repo
+consultant_report.txt
