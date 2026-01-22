@@ -70,10 +70,28 @@ def add_hours():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-# Route 4: Create new consultant 
-@app.route('/createConsultant', methods=['POST'])
-def add_consultant():
-    pass
+# Route 4: Insert consultants
+@app.route('/consultants', methods=['POST'])
+def add_consultants():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON"}), 400
+
+        if 'consultant_name' not in data:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        result = pmqueries.insert_consultants(
+            consultant_name=data['consultant_name']
+        )
+
+        if result:
+            return jsonify(result), 201
+        else:
+            return jsonify({"error": "Database insert failed"}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
