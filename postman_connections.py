@@ -1,5 +1,6 @@
 from flask import Flask, request, Response, jsonify
 import pmqueries
+from manualtrigger import get_report
 import json
 
 app = Flask(__name__)
@@ -15,6 +16,12 @@ POST /hours on excisting person
     "endtime": "2025-12-22 21:00:00",
     "lunchbreak": true,
     "customername": "Edwards, Pope and Bishop"
+}
+
+POST /consultant (creates a new consultant)
+
+{
+    "consultant_name": "Jonathan Doebolomew"
 }
 
 """
@@ -40,8 +47,24 @@ def hours():
         return Response(json_response, mimetype='application/json', status=200)
     else:
         return jsonify({"error": "Failed to fetch hours"}), 500
+    
+# Route 3: POST manual trigger 
 
-# Route 3: Insert hours
+@app.route('/trigger-report', methods=['POST'])
+def trigger_report_generation():
+    try:
+        # This replaces your manual "get_report()" call
+        get_report()
+        
+        return jsonify({"status": "success", "message": "Report generated and uploaded."}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+
+# Route 4: Insert hours
 @app.route('/hours', methods=['POST'])
 def add_hours():
     try:
@@ -70,7 +93,7 @@ def add_hours():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-# Route 4: Insert consultants
+# Route 5: Insert consultants
 @app.route('/consultants', methods=['POST'])
 def add_consultants():
     try:
@@ -92,6 +115,8 @@ def add_consultants():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# Route 5: 
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

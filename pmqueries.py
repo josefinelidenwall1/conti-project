@@ -93,3 +93,35 @@ def insert_hours(consultant_id: int, starttime :datetime, endtime :datetime, lun
             con.close()
 
 #print(insert_hours(2,'2025-01-12 09:00:00', '2025-01-12 16:30:00', False, 'staterailroads'))
+
+def insert_consultants(consultant_name: str):
+    con = None
+    try:
+        con = connect()
+        cursor = con.cursor(cursor_factory=RealDictCursor)
+
+        # SQL to insert just the name and return the new ID
+        SQL = """
+            INSERT INTO consultants (consultant_name)
+            VALUES (%s)
+            RETURNING consultant_id, consultant_name;
+        """
+        
+        cursor.execute(SQL, (consultant_name,))
+        new_consultant = cursor.fetchone()
+        
+        con.commit() # Save to DB
+        cursor.close()
+        
+        return json.dumps(new_consultant, default=str)
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        if con:
+            con.rollback()
+        print(f"Error inserting consultant: {error}")
+        return None
+    finally:
+        if con is not None:
+            con.close()
+
+#print(insert_consultants('Jonathan Doebrowski'))
