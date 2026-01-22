@@ -94,40 +94,40 @@ def insert_hours(consultant_id: int, starttime :datetime, endtime :datetime, lun
 
 #print(insert_hours(2,'2025-01-12 09:00:00', '2025-01-12 16:30:00', False, 'staterailroads'))
 
-def update_hours(workday_id: int, starttime :datetime, endtime :datetime, lunchbreak : bool, customername: str):
-    con = None
-    try:
+# def update_hours(workday_id: int, starttime :datetime, endtime :datetime, lunchbreak : bool, customername: str):
+#     con = None
+#     try:
 
-        balance_minutes = calculate_billable_minutes(starttime, endtime, lunchbreak)
+#         balance_minutes = calculate_billable_minutes(starttime, endtime, lunchbreak)
 
-        con = connect()
-        cursor =con.cursor(cursor_factory=RealDictCursor)
+#         con = connect()
+#         cursor =con.cursor(cursor_factory=RealDictCursor)
 
-        SQL = """
-            UPDATE consultanthours 
-            SET startingtime = %s, 
-                endingtime = %s, 
-                balance_minutes = %s, 
-                lunchbreak = %s, 
-                customername = %s
-            WHERE workday_id = %s
-            RETURNING workday_id, startingtime, endingtime, balance_minutes;
-        """
-        values=(starttime, endtime, balance_minutes, lunchbreak, customername, workday_id)
+#         SQL = """
+#             UPDATE consultanthours 
+#             SET startingtime = %s, 
+#                 endingtime = %s, 
+#                 balance_minutes = %s, 
+#                 lunchbreak = %s, 
+#                 customername = %s
+#             WHERE workday_id = %s
+#             RETURNING workday_id, startingtime, endingtime, balance_minutes;
+#         """
+#         values=(starttime, endtime, balance_minutes, lunchbreak, customername, workday_id)
 
-        cursor.execute(SQL,values)
-        update_row = cursor.fetchone()
-        con.commit()
-        cursor.close()
-        return json.dumps(update_row, default =str) if update_row else None
+#         cursor.execute(SQL,values)
+#         update_row = cursor.fetchone()
+#         con.commit()
+#         cursor.close()
+#         return json.dumps(update_row, default =str) if update_row else None
 
-    except (Exception, psycopg2.DatabaseError) as error:
-        if con:
-            con.rollback()
-        print(error)
-    finally:
-        if con is not None:
-            con.close()
+#     except (Exception, psycopg2.DatabaseError) as error:
+#         if con:
+#             con.rollback()
+#         print(error)
+#     finally:
+#         if con is not None:
+#             con.close()
 
 
 def insert_consultants(consultant_name: str):
