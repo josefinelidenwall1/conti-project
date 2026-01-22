@@ -59,10 +59,51 @@ def run_report():
 
     try:
         with open(report_file, "w") as f:
-            f.write("--- Consultant Time Report ---\n\n")
+            f.write("="*80 + "\n")
+            f.write("      CONTI - CONSULTANT TIME REPORT \n")
+            f.write("="*80 + "\n\n")
 
             with con.cursor() as cursor:
-                
+                # ---  CONSULTANT PERFORMANCE table ---
+                f.write("1. CONSULTANT PERFORMANCE SUMMARY\n")
+                sql_query2 = """
+                SELECT 
+                    c.consultant_name,
+                    TO_CHAR(h.startingTime, 'Month') AS month_name,
+                    ROUND(SUM(h.balance_minutes) / 60.0, 2) AS total_monthly_hours,
+                    ROUND((SUM(h.balance_minutes) / 60.0) / 4.0, 2) AS avg_weekly_hours,
+                    ROUND((SUM(h.balance_minutes) / 60.0) / 20.0, 2) AS avg_daily_hours
+                FROM consultanthours h
+                JOIN consultants c ON h.consultant_id = c.consultant_id
+                GROUP BY 1, 2
+                ORDER BY 1, 2;
+                """
+                cursor.execute(sql_query2)
+                headers2 = [desc[0] for desc in cursor.description]
+                f.write(tabulate(cursor.fetchall(), headers=headers2, tablefmt="psql") + "\n\n")
+
+                # --- CUSTOMER BILLING SUMMARY table ---
+                f.write("2. CUSTOMER BILLING & WEEKLY LOAD\n")
+                sql_query3 = """
+                SELECT 
+                    customername AS company_name,
+                    TO_CHAR(startingTime, 'Month') AS month_name,
+                    ROUND(SUM(balance_minutes) / 60.0, 2) AS total_monthly_hours,
+                    ROUND((SUM(balance_minutes) / 60.0) / 4.0, 2) AS avg_weekly_hours,
+                    ROUND(SUM(CASE WHEN CEIL(EXTRACT(DAY FROM startingTime) / 7.0) = 1 THEN balance_minutes ELSE 0 END) / 60.0, 2) AS week_1,
+                    ROUND(SUM(CASE WHEN CEIL(EXTRACT(DAY FROM startingTime) / 7.0) = 2 THEN balance_minutes ELSE 0 END) / 60.0, 2) AS week_2,
+                    ROUND(SUM(CASE WHEN CEIL(EXTRACT(DAY FROM startingTime) / 7.0) = 3 THEN balance_minutes ELSE 0 END) / 60.0, 2) AS week_3,
+                    ROUND(SUM(CASE WHEN CEIL(EXTRACT(DAY FROM startingTime) / 7.0) >= 4 THEN balance_minutes ELSE 0 END) / 60.0, 2) AS week_4_plus
+                FROM consultanthours
+                GROUP BY 1, 2 -- group by company_name and month_name
+                ORDER BY 2, 1;  -- order by month_name then company_name
+                """
+                cursor.execute(sql_query3)
+                headers3 = [desc[0] for desc in cursor.description]
+                f.write(tabulate(cursor.fetchall(), headers=headers3, tablefmt="psql") + "\n\n")
+
+                # --- DETAILED WEEKLY TIME MATRIX table ---
+                f.write("3. DETAILED WEEKLY TIME MATRIX\n")
                 query1 = """
                 WITH WeeklyMatrix AS (
                 SELECT 
