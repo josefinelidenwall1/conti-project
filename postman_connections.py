@@ -116,7 +116,33 @@ def add_consultants():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-# Route 5: 
+# Route 7: Update existing hours
+@app.route('/hours/<int:id>', methods=['PUT'])
+def modify_hours(id):
+    try:
+        data = request.get_json()
+        
+        # Check required fields (same as POST)
+        required_fields = ['starttime', 'endtime', 'lunchbreak', 'customername']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Call the UPDATE function
+        result = pmqueries.update_hours(
+            workday_id=id,
+            starttime=data['starttime'],
+            endtime=data['endtime'],
+            lunchbreak=data['lunchbreak'],
+            customername=data['customername']
+        )
+
+        if result:
+            return Response(result, mimetype='application/json', status=200)
+        else:
+            return jsonify({"error": "Workday ID not found"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
