@@ -1,6 +1,7 @@
 import psycopg2
 import logging
 from kv_secrets import get_database_credentials
+from tabulate import tabulate
 
 
 
@@ -58,45 +59,50 @@ def run_report():
 
     try:
         with open(report_file, "w") as f:
-            f.write("--- Consultant Time Report ---\n")
+            f.write("--- Consultant Time Report ---\n\n")
 
             with con.cursor() as cursor:
-                f.write("High Level Consultant Time Report \n")
+                
                 query1 = """
                 WITH WeeklyMatrix AS (
                 SELECT 
-                c.consultant_name,
-                h.customername AS company_name,
-                TO_CHAR(h.startingTime, 'Month') AS month_name,  
-                'Week ' || CAST(CEIL(EXTRACT(DAY FROM h.startingTime) / 7.0) AS INTEGER) AS week_number,
-            
-                SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 1 THEN h.balance_minutes ELSE 0 END) / 60.0 AS Mon,
-                SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 2 THEN h.balance_minutes ELSE 0 END) / 60.0 AS Tue,
-                SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 3 THEN h.balance_minutes ELSE 0 END) / 60.0 AS Wed,
-                SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 4 THEN h.balance_minutes ELSE 0 END) / 60.0 AS Thu,
-                SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 5 THEN h.balance_minutes ELSE 0 END) / 60.0 AS Fri,
-            
-                SUM(h.balance_minutes) / 60.0 AS total_weekly_hours
+                    c.consultant_name,
+                    h.customername AS company_name,
+                    TO_CHAR(h.startingTime, 'Month') AS month_name,  
+                    'Week ' || CAST(CEIL(EXTRACT(DAY FROM h.startingTime) / 7.0) AS INTEGER) AS week_number,
+                
+                    ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 1 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Mon,
+                    ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 2 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Tue,
+                    ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 3 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Wed,
+                    ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 4 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Thu,
+                    ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 5 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Fri,
+                
+                    ROUND(SUM(h.balance_minutes) / 60.0, 2) AS total_weekly_hours
                 FROM consultanthours AS h
                 JOIN consultants AS c ON h.consultant_id = c.consultant_id
                 GROUP BY 1, 2, 3, 4
                 )
                 SELECT *,
-                SUM(total_weekly_hours) OVER (
-                PARTITION BY company_name, month_name  
-                ORDER BY week_number
-                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-                ) AS customer_cumulative_to_date
+                ROUND(SUM(total_weekly_hours) OVER (
+                    PARTITION BY company_name, month_name  
+                    ORDER BY week_number
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                ), 2) AS customer_cumulative_to_date
                 FROM WeeklyMatrix
                 ORDER BY company_name, week_number;
                 """
-
+                
                 cursor.execute(query1)
-
-                # Fetching data and writing to file
-                for row in cursor.fetchall():
-                    f.write(" | ".join(map(str, row)) + "\n")
-                f.write("\n" + "="*50 + "\n\n")
+                
+                headers = [desc[0] for desc in cursor.description]
+                data = cursor.fetchall()
+                
+                # Using tabulate and converting to psql format to create a nice table
+                pretty_table = tabulate(data, headers=headers, tablefmt="psql")
+                
+                f.write("High Level Consultant Time Report\n")
+                f.write(pretty_table)
+                f.write("\n\n" + "="*80 + "\n\n")
 
             print(f"Successfully generated {report_file}")
 
