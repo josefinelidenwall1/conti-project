@@ -2,6 +2,9 @@ from flask import Flask, request, Response, jsonify
 import pmqueries
 from manualtrigger import get_report
 import json
+import manualtrigger
+from report_queries import run_report
+from sdkfunctions import sdk_config, upload_file2
 
 app = Flask(__name__)
 
@@ -143,6 +146,28 @@ def add_consultants():
 
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 500
+
+
+#Route 5 mtrigger for manual report? 
+
+@app.route('/get-report', methods=['GET'])
+def get_report():
+    try:
+        json_response = run_report()
+
+        if json_response:
+            sdk_config()
+            upload_file2('consultant_report.txt')
+            return Response(json_response, mimetype='application/json', status=200)
+        else:
+            return jsonify({"error": "Report generation returned no data"}), 500
+
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to generate report",
+            "details": str(e)
+        }), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
