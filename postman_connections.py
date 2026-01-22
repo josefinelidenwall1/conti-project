@@ -1,5 +1,6 @@
 from flask import Flask, request, Response, jsonify
-import pmqueries # change later to match connection
+import pmqueries
+from manualtrigger import get_report
 import json
 
 app = Flask(__name__)
@@ -7,12 +8,20 @@ app = Flask(__name__)
 """
 example JSON:
 
+POST /hours on excisting person
+
 {
-    "consultant_id": 1
-    "starttime": "2026-01-21 09:00:00",
-    "endtime": "2026-01-21 16:30:00",
-    "lunchbreak": false,
-    "customername": "Customer inc"
+    "consultant_id": 18,
+    "starttime": "2025-12-22 06:30:00",
+    "endtime": "2025-12-22 21:00:00",
+    "lunchbreak": true,
+    "customername": "Edwards, Pope and Bishop"
+}
+
+POST /consultant (creates a new consultant)
+
+{
+    "consultant_name": "Jonathan Doebolomew"
 }
 
 """
@@ -38,8 +47,24 @@ def hours():
         return Response(json_response, mimetype='application/json', status=200)
     else:
         return jsonify({"error": "Failed to fetch hours"}), 500
+    
+# Route 3: POST manual trigger 
 
-# Route 3: Insert hours
+@app.route('/trigger-report', methods=['POST'])
+def trigger_report_generation():
+    try:
+        # This replaces your manual "get_report()" call
+        get_report()
+        
+        return jsonify({"status": "success", "message": "Report generated and uploaded."}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+
+# Route 4: Insert hours
 @app.route('/hours', methods=['POST'])
 def add_hours():
     try:
@@ -67,6 +92,57 @@ def add_hours():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+# Route 5: Insert consultants
+@app.route('/consultants', methods=['POST'])
+def add_consultants():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON"}), 400
+
+        if 'consultant_name' not in data:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        result = pmqueries.insert_consultants(
+            consultant_name=data['consultant_name']
+        )
+
+        if result:
+            return jsonify(result), 201
+        else:
+            return jsonify({"error": "Database insert failed"}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+# Route 7: Update existing hours
+# @app.route('/hours/<int:id>', methods=['PUT'])
+# def modify_hours(id):
+#     try:
+#         data = request.get_json()
+        
+#         # Check required fields (same as POST)
+#         required_fields = ['starttime', 'endtime', 'lunchbreak', 'customername']
+#         if not all(field in data for field in required_fields):
+#             return jsonify({"error": "Missing required fields"}), 400
+
+#         # Call the UPDATE function
+#         result = pmqueries.update_hours(
+#             workday_id=id,
+#             starttime=data['starttime'],
+#             endtime=data['endtime'],
+#             lunchbreak=data['lunchbreak'],
+#             customername=data['customername']
+#         )
+
+#         if result:
+#             return Response(result, mimetype='application/json', status=200)
+#         else:
+#             return jsonify({"error": "Workday ID not found"}), 404
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
