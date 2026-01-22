@@ -9,4 +9,4 @@ def get_report():
     upload_file2('consultant_report.txt')
 
 
-get_report()
+#get_report()

@@ -1,8 +1,7 @@
 from flask import Flask, request, Response, jsonify
 import pmqueries
-from manualtrigger import get_report
 import json
-import manualtrigger
+from manualtrigger import get_report
 from report_queries import run_report
 from sdkfunctions import sdk_config, upload_file2
 
@@ -117,35 +116,31 @@ def add_consultants():
         return jsonify({"error": str(e)}), 500
     
 # Route 7: Update existing hours
-# @app.route('/hours/<int:id>', methods=['PUT'])
-# def modify_hours(id):
-#     try:
-#         data = request.get_json()
-        
-#         # Check required fields (same as POST)
-#         required_fields = ['starttime', 'endtime', 'lunchbreak', 'customername']
-#         if not all(field in data for field in required_fields):
-#             return jsonify({"error": "Missing required fields"}), 400
-
-#         # Call the UPDATE function
-#         result = pmqueries.update_hours(
-#             workday_id=id,
-#             starttime=data['starttime'],
-#             endtime=data['endtime'],
-#             lunchbreak=data['lunchbreak'],
-#             customername=data['customername']
-#         )
-
-#         if result:
-#             return Response(result, mimetype='application/json', status=200)
-#         else:
-#             return jsonify({"error": "Workday ID not found"}), 404
-
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
+@app.route('/hours/<int:id>', methods=['PUT'])
+def modify_hours(id):
+    try:
+        data = request.get_json()    
+        # Check required fields (same as POST)
+        required_fields = ['starttime', 'endtime', 'lunchbreak', 'customername']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        # Call the UPDATE function
+        result = pmqueries.update_hours(
+            workday_id=id,
+            starttime=data['starttime'],
+            endtime=data['endtime'],
+            lunchbreak=data['lunchbreak'],
+            customername=data['customername']
+        )
+        if result:
+            return Response(result, mimetype='application/json', status=200)
+        else:
+            return jsonify({"error": "Workday ID not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
-#Route 5 mtrigger for manual report? 
+#Route 8 mtrigger for manual report? 
 
 @app.route('/get-report', methods=['GET'])
 def get_report():
@@ -164,6 +159,21 @@ def get_report():
             "error": "Failed to generate report",
             "details": str(e)
         }), 500
+    
+# Route 9: Get hours for a specific consultant
+@app.route('/consultant/<int:id>/hours', methods=['GET'])
+def consultant_hours(id):
+    try:
+        # Call the new function
+        result = pmqueries.get_hours_by_consultant(id)
+        
+        if result:
+            return Response(result, mimetype='application/json', status=200)
+        else:
+            return jsonify({"error": "Could not fetch hours"}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
