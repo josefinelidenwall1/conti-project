@@ -1,5 +1,5 @@
 from flask import Flask, request, Response, jsonify
-import pmqueries # change later to match connection
+import pmqueries
 import json
 
 app = Flask(__name__)
@@ -7,12 +7,14 @@ app = Flask(__name__)
 """
 example JSON:
 
+POST /hours on excisting person
+
 {
-    "consultant_id": 1
-    "starttime": "2026-01-21 09:00:00",
-    "endtime": "2026-01-21 16:30:00",
-    "lunchbreak": false,
-    "customername": "Customer inc"
+    "consultant_id": 18,
+    "starttime": "2025-12-22 06:30:00",
+    "endtime": "2025-12-22 21:00:00",
+    "lunchbreak": true,
+    "customername": "Edwards, Pope and Bishop"
 }
 
 """
@@ -67,6 +69,11 @@ def add_hours():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+# Route 4: Create new consultant 
+@app.route('/createConsultant', methods=['POST'])
+def add_consultant():
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
