@@ -8,5 +8,5 @@ def get_report():
     sdk_config()
     upload_file2('consultant_report.txt')
 
-
-#get_report()
+if __name__ == "__main__":
+    get_report()
