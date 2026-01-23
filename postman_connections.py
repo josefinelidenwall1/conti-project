@@ -8,23 +8,41 @@ from sdkfunctions import sdk_config, upload_file2
 app = Flask(__name__)
 
 """
-example JSON:
+Demo JSON:
+
+=== POST ===
+
+POST /consultants (creates a new consultant)
+
+{
+    "consultant_name": "John Doe"
+}
 
 POST /hours on excisting person
 
 {
-    "consultant_id": 18,
-    "starttime": "2025-12-22 06:30:00",
-    "endtime": "2025-12-22 21:00:00",
+    "consultant_id": ,
+    "starttime": "2026-01-23 08:00:00",
+    "endtime": "2026-01-23 16:00:00",
     "lunchbreak": true,
-    "customername": "Edwards, Pope and Bishop"
+    "customername": "Saltio AI"
 }
 
-POST /consultant (creates a new consultant)
+=== PUT ===
+
+PUT /hours/ID
 
 {
-    "consultant_name": "Jonathan Doebolomew"
+    "starttime": "2026-01-23 08:00:00",
+    "endtime": "2026-01-23 15:00:00",
+    "lunchbreak": false,
+    "customername": "Saltio AI"
 }
+
+===== GET ====
+
+GET /hours (gets all consultant hours)
+GET /consultants (gets all consultants)
 
 """
 
