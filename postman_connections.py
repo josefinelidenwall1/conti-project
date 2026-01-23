@@ -142,24 +142,25 @@ def modify_hours(id):
 
 #Route 8 mtrigger for manual report? 
 
-@app.route('/get-report', methods=['GET'])
-def get_report():
-    try:
-        json_response = run_report()
+#@app.route('/get-report', methods=['GET'])
+#def get_report_api():
+#    try:
+#        json_response = run_report()
+#
+#        if json_response:
+#            sdk_config()
+#            upload_file2('consultant_report.txt')
+#            return Response(json_response, mimetype='application/json', status=200)
+#        else:
+#            return jsonify({"error": "Report generation returned no data"}), 500
 
-        if json_response:
-            sdk_config()
-            upload_file2('consultant_report.txt')
-            return Response(json_response, mimetype='application/json', status=200)
-        else:
-            return jsonify({"error": "Report generation returned no data"}), 500
+#    except Exception as e:
+#        return jsonify({
+#            "error": "Failed to generate report",
+#            "details": str(e)
+#        }), 500
 
-    except Exception as e:
-        return jsonify({
-            "error": "Failed to generate report",
-            "details": str(e)
-        }), 500
-    
+
 # Route 9: Get hours for a specific consultant
 @app.route('/consultant/<int:id>/hours', methods=['GET'])
 def consultant_hours(id):
