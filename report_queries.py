@@ -5,6 +5,7 @@ from tabulate import tabulate
 
 
 
+# Using logger to help track if the connection succeeded or where it failed in the background.
 logger = logging.getLogger(__name__)
 
 def connect():
@@ -33,6 +34,7 @@ def connect():
 
 # Test function to query columns in consultants table
 def testing_report_conn():
+    #Test function to verify we can reach the tables
     con=connect()
     if con is None:
         return
@@ -52,6 +54,7 @@ def testing_report_conn():
 # ------------------------------------------
 
 def run_report():
+    #Main function to generate the text-based consultant report
     con=connect()
     if con is None:
         return
@@ -69,13 +72,17 @@ def run_report():
                 sql_query2 = """
                 SELECT 
                     c.consultant_name,
+                    -- Converting timestamp into a readable month name
                     TO_CHAR(h.startingTime, 'Month') AS month_name,
+                    -- Divide by 60.0 to convert int 'balance_minutes' into decimal hours
                     ROUND(SUM(h.balance_minutes) / 60.0, 2) AS total_monthly_hours,
+                    -- Assumes a 4 week month to calculate the weekly workload average
                     ROUND((SUM(h.balance_minutes) / 60.0) / 4.0, 2) AS avg_weekly_hours,
+                    -- Assumes a 20-day work month to calculate the avg daily hours
                     ROUND((SUM(h.balance_minutes) / 60.0) / 20.0, 2) AS avg_daily_hours
                 FROM consultanthours h
                 JOIN consultants c ON h.consultant_id = c.consultant_id
-                GROUP BY 1, 2
+                GROUP BY 1, 2 -- Grouping by name and month
                 ORDER BY 1, 2;
                 """
                 cursor.execute(sql_query2)
@@ -90,6 +97,9 @@ def run_report():
                     TO_CHAR(startingTime, 'Month') AS month_name,
                     ROUND(SUM(balance_minutes) / 60.0, 2) AS total_monthly_hours,
                     ROUND((SUM(balance_minutes) / 60.0) / 4.0, 2) AS avg_weekly_hours,
+                    -- CASE WHEN logic - Pivots the data and checks which week of the month 
+                    -- the work happened and sums it into specific columns
+                    -- EXTRACT(DAY...) / 7.0 determines which week (1, 2, 3, or 4) the date falls into
                     ROUND(SUM(CASE WHEN CEIL(EXTRACT(DAY FROM startingTime) / 7.0) = 1 THEN balance_minutes ELSE 0 END) / 60.0, 2) AS week_1,
                     ROUND(SUM(CASE WHEN CEIL(EXTRACT(DAY FROM startingTime) / 7.0) = 2 THEN balance_minutes ELSE 0 END) / 60.0, 2) AS week_2,
                     ROUND(SUM(CASE WHEN CEIL(EXTRACT(DAY FROM startingTime) / 7.0) = 3 THEN balance_minutes ELSE 0 END) / 60.0, 2) AS week_3,
@@ -111,7 +121,8 @@ def run_report():
                     h.customername AS company_name,
                     TO_CHAR(h.startingTime, 'Month') AS month_name,  
                     'Week ' || CAST(CEIL(EXTRACT(DAY FROM h.startingTime) / 7.0) AS INTEGER) AS week_number,
-                
+                    -- ISODOW = 1 is Monday, 2 is Tuesday, etc. 
+                    -- This calculates total hours worked on each specific day of the week
                     ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 1 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Mon,
                     ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 2 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Tue,
                     ROUND(SUM(CASE WHEN EXTRACT(ISODOW FROM h.startingTime) = 3 THEN h.balance_minutes ELSE 0 END) / 60.0, 2) AS Wed,
@@ -124,6 +135,8 @@ def run_report():
                 GROUP BY 1, 2, 3, 4
                 )
                 SELECT *,
+                -- This calculates a 'Running Total'. It sums all weekly hours from 
+                -- the start of the month up to the current row's week for each customer
                 ROUND(SUM(total_weekly_hours) OVER (
                     PARTITION BY company_name, month_name  
                     ORDER BY week_number
