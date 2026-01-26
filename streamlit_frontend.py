@@ -12,6 +12,81 @@ TRIGGER_URL = "http://20.123.92.154:5000"
 # ---------------------
 
 st.set_page_config(page_title="CONTI", layout="wide")
+
+# === CUSTOM STYLING START ===
+st.markdown("""
+    <style>
+        /* Main Backgrounds */
+        .stApp {
+            background-color: #1e2a38;
+        }
+        [data-testid="stSidebar"] {
+            background-color: #3a5068;
+        }
+
+        /* Global Text */
+        h1, h2, h3 {
+            color: #92d0c1 !important;
+        }
+        p, label, span, div {
+            color: #f5f7fa !important;
+        }
+
+        /* Buttons (Standard & Form Submit) */
+        .stButton > button, [data-testid="stFormSubmitButton"] > button {
+            background-color: #92d0c1 !important;
+            color: #1e2a38 !important;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .stButton > button:hover, [data-testid="stFormSubmitButton"] > button:hover {
+            background-color: #7ab8a8 !important;
+            color: #1e2a38 !important;
+            box-shadow: 0px 4px 15px rgba(146, 208, 193, 0.4);
+        }
+
+        /* Inputs (Text, Number, Date, Time) */
+        div[data-baseweb="input"], div[data-baseweb="base-input"] {
+            background-color: #151e29 !important;
+            border: 1px solid #3a5068 !important;
+            border-radius: 5px;
+        }
+        input {
+            color: #f5f7fa !important;
+        }
+
+        /* Radio Buttons & Checkboxes */
+        [data-testid="stRadio"] label, [data-testid="stCheckbox"] label {
+            color: #f5f7fa !important;
+        }
+        /* Force specific background for radio/checkbox containers if needed */
+        [data-testid="stRadio"] > div {
+            background-color: transparent !important;
+        }
+
+        /* Dataframes & Tables */
+        [data-testid="stDataFrame"] {
+            border: 1px solid #3a5068;
+        }
+
+        /* Form Containers */
+        [data-testid="stForm"] {
+            background-color: #243447;
+            border: 1px solid #3a5068;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Alerts/Info Boxes */
+        .stAlert {
+            background-color: #2b3b4e;
+            border: 1px solid #92d0c1;
+        }
+    </style>
+""", unsafe_allow_html=True)
+# === CUSTOM STYLING END ===
+
 st.title("CONTI")
 
 # Sidebar for Navigation
